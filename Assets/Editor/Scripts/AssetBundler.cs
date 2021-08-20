@@ -193,26 +193,36 @@ public class AssetBundler
 
         if (!File.Exists(MSBUILD_PATH))
         {
-            throw new Exception("MSBUILD_PATH not set to your MSBuild.exe");
+            //throw new Exception("MSBUILD_PATH not set to your MSBuild.exe");
         }
 
         //modify the csproj (if needed)
-        var csproj = File.ReadAllText("ktanemodkit.CSharp.csproj");
+        var csproj = File.ReadAllText("Assembly-CSharp.csproj");
         csproj = csproj.Replace("<AssemblyName>Assembly-CSharp</AssemblyName>", "<AssemblyName>"+ assemblyName + "</AssemblyName>");
-        File.WriteAllText("modkithelper.CSharp.csproj", csproj);
+        File.WriteAllText("Assembly-CSharp.csproj", csproj);
 
-        string path = "modkithelper.CSharp.csproj";
+        string path = "Assembly-CSharp.csproj";
         System.Diagnostics.Process p = new System.Diagnostics.Process();
-        p.StartInfo.FileName = MSBUILD_PATH;
+        p.StartInfo.FileName = "msbuild";
         p.StartInfo.Arguments = path + " /p:Configuration=Release";
         p.StartInfo.UseShellExecute = false;
-        p.StartInfo.RedirectStandardOutput = false;
-        p.StartInfo.RedirectStandardError = false;
+        p.StartInfo.RedirectStandardOutput = true;
+        p.StartInfo.RedirectStandardError = true;
         p.StartInfo.CreateNoWindow = true;
+        p.OutputDataReceived += (sender, e) =>
+        {
+            Debug.LogFormat("[MSBuild output] {0}", e.Data);
+        };
+        p.ErrorDataReceived += (sender, e) =>
+        {
+            Debug.LogFormat("[MSBuild error] {0}", e.Data);
+        };
         p.Start();
+        p.BeginOutputReadLine();
+        p.BeginErrorReadLine();
         p.WaitForExit();
 
-        string source = string.Format("Temp/UnityVS_bin/Release/{0}.dll", assemblyName);
+        string source = string.Format("Temp/bin/Release/{0}.dll", assemblyName);
         string dest = Path.Combine(outputFolder, assemblyName + ".dll");
         File.Copy(source, dest);
     }
@@ -247,6 +257,7 @@ public class AssetBundler
             .ToList();
 
         managedReferences.Add(Path.Combine(EditorApplication.applicationContentsPath, "Managed/UnityEngine"));
+        managedReferences.Add(Path.Combine(EditorApplication.applicationContentsPath, "UnityExtensions/Unity/GUISystem/UnityEngine.UI"));
 
         //Next we need to grab some type references and use reflection to build things the way Unity does.
         //Note that EditorUtility.CompileCSharp will do *almost* exactly the same thing, but it unfortunately
