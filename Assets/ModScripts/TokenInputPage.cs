@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.UI;
-using DiscordPlays;
 
 [DisallowMultipleComponent]
 public class TokenInputPage : MonoBehaviour
@@ -44,13 +43,13 @@ public class TokenInputPage : MonoBehaviour
         DiscordPlaysService.ws.PageActive = true;
     }
 
-    void OnDestroy()
+    void OnDisable()
     {
         DiscordPlaysService.ws.PageActive = false;
     }
-
-    void OnDisable()
+    
+    void OnDestroy()
     {
-        OnDestroy();
+        OnDisable();
     }
 }

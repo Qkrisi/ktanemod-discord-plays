@@ -79,13 +79,12 @@ namespace DiscordPlays
             Type IRCMessage = ReflectionHelper.FindType("IRCMessage", "TwitchPlaysAssembly");
             NicknameField = IRCMessage.GetField("UserNickName", AccessTools.all);
             TextProperty = IRCMessage.GetProperty("Text", AccessTools.all);
-            MethodInfo ReceiveMessageMethod = DiscordPlaysService.IRCConnectionType.GetMethod("ReceiveMessage", AccessTools.all,
+            return DiscordPlaysService.IRCConnectionType.GetMethod("ReceiveMessage", AccessTools.all,
                 Type.DefaultBinder,
                 new Type[]
                 {
                     IRCMessage, typeof(bool)
-                }, null);
-            return ReceiveMessageMethod;
+                }, null);;
         }
 
         static bool Prefix(object msg)
