@@ -135,6 +135,7 @@ public class WSHandler : MonoBehaviour
             CurrentState = WSState.Changing;
             if (ws.IsAlive)
                 ws.Close();
+            ((IDisposable)ws).Dispose();
             ws = null;
         }
     }
