@@ -84,7 +84,7 @@ namespace DiscordPlays
                 new Type[]
                 {
                     IRCMessage, typeof(bool)
-                }, null);;
+                }, null);
         }
 
         static bool Prefix(object msg)
