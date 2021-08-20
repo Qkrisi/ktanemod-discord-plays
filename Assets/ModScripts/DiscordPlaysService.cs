@@ -86,7 +86,6 @@ public class DiscordPlaysService : MonoBehaviour
                 RegisterService();
                 yield break;
             }
-
             yield return null;
         }
     }

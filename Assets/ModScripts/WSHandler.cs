@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
+using WebSocketSharp;
 using DiscordPlays;
 
 [DisallowMultipleComponent]
@@ -27,7 +28,7 @@ public class WSHandler : MonoBehaviour
 
     private new bool enabled;
 
-    private WebSocketSharp.WebSocket ws;
+    private WebSocket ws;
     private Queue<Action> ActionQueue = new Queue<Action>();
     
     internal TokenInputPage _tokenInputPage;
@@ -56,7 +57,7 @@ public class WSHandler : MonoBehaviour
         OnDestroy();
         var settings = DiscordPlaysService.settings;
         bool OverrideURL = !String.IsNullOrEmpty(settings.URLOverride);
-        ws = new WebSocketSharp.WebSocket(String.Format("{0}://{1}", OverrideURL && settings.UseWSSOnOverride ? "wss" : "ws",
+        ws = new WebSocket(String.Format("{0}://{1}", OverrideURL && settings.UseWSSOnOverride ? "wss" : "ws",
             OverrideURL ? settings.URLOverride : DefaultURLs[settings.Server]));
         ws.OnMessage += (sender, e) =>
         {
