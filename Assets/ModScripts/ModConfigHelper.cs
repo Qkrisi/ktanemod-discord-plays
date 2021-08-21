@@ -3,6 +3,7 @@ using System.IO;
 using JetBrains.Annotations;
 using UnityEngine;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace DiscordPlays
 {
@@ -25,7 +26,7 @@ namespace DiscordPlays
             catch (FileNotFoundException)
             {
                 settings = new T();
-                File.WriteAllText(settingsPath, JsonConvert.SerializeObject(settings, Formatting.Indented));
+                File.WriteAllText(settingsPath, JsonConvert.SerializeObject(settings, Formatting.Indented, new StringEnumConverter()));
             }
             return settings;
         }

@@ -16,27 +16,46 @@ public class DiscordPlaysService : MonoBehaviour
         Main,
         Beta
     }
+
+    public enum BlockTwitchOption
+    {
+        Always,
+        WhenConnected,
+        Never
+    }
     
     public class DiscordPlaysSettings
     {
         public string URLOverride = "";
         public bool UseWSSOnOverride = false;
-        public bool EnableTwitchInput = false;
+        public BlockTwitchOption BlockTwitchInput = BlockTwitchOption.Always;
         public DefaultServers Server = DefaultServers.Main;
     }
 
-    internal static DiscordPlaysSettings settings;
+    internal const string SettingsFile = "DiscordPlays.json";
+    
+    internal static DiscordPlaysSettings settings = new DiscordPlaysSettings();
 
     internal static Type IRCConnectionType = null;
 
     internal static MethodInfo ReceiveMessageMethod;
 
     internal static WSHandler ws;
+
+    internal static bool EnableTwitchInput
+    {
+        get
+        {
+            return settings.BlockTwitchInput == BlockTwitchOption.Never ||
+                   (settings.BlockTwitchInput == BlockTwitchOption.WhenConnected &&
+                    ws.CurrentState != WSHandler.WSState.Connected);
+        }
+    }
     
 
     public static void RefreshSettings()
     {
-        settings = ModConfigHelper.ReadConfig<DiscordPlaysSettings>("DiscordPlays");
+        settings = ModConfigHelper.ReadConfig<DiscordPlaysSettings>(SettingsFile);
         if (settings == null)
             settings = new DiscordPlaysSettings();
     }
@@ -99,4 +118,36 @@ public class DiscordPlaysService : MonoBehaviour
         Action<string, KMSelectable, Texture2D> addHomePageMethod = (Action<string, KMSelectable, Texture2D>)ModSelectorApi["AddHomePageMethod"];
         addHomePageMethod("Discord Plays: KTaNE", selectable, ModSelectorIcon);
     }
+
+    public static Dictionary<string, object>[] TweaksEditorSettings = new Dictionary<string, object>[]
+    {
+        new Dictionary<string, object>
+        {
+            {"Filename", SettingsFile},
+            {"Name", "Discord Plays: KTaNE"},
+            {
+                "Listings", new List<Dictionary<string, object>>
+                {
+                    new Dictionary<string, object> {{"Key", "URLOverride"}, {"Text", "URL Override"}, {"Description", "Discord Plays URL for private instance of the KTaNE Bot"}},
+                    new Dictionary<string, object> {{"Key", "UseWSSOnOverride"}, {"Text", "Use WSS on override"}, {"Description", "Use SSL connection when using an overridden URL"}},
+                    new Dictionary<string, object>
+                    {
+                        {"Key", "BlockTwitchInput"},
+                        {"Text", "Block Twitch input"},
+                        {"Description", "Sets when to block input and output from Twitch"},
+                        {"Type", "Dropdown"},
+                        {"DropdownItems", new List<object> {"Always", "WhenConnected", "Never"}}
+                    },
+                    new Dictionary<string, object>
+                    {
+                        {"Key", "Server"},
+                        {"Text", "KTaNE Bot server"},
+                        {"Description", "The KTaNE Bot instance to use when the URL is not overridden"},
+                        {"Type", "Dropdown"},
+                        {"DropdownItems", new List<object> {"Main", "Beta"}}
+                    }
+                }
+            }
+        }
+    };
 }

@@ -22,7 +22,7 @@ namespace DiscordPlays
         
         static bool Prefix()
         {
-            return DiscordPlaysService.settings.EnableTwitchInput;
+            return DiscordPlaysService.EnableTwitchInput;
         }
     }
 
@@ -38,7 +38,7 @@ namespace DiscordPlays
         static bool Prefix(out bool __result)
         {
             __result = false;
-            return DiscordPlaysService.settings.EnableTwitchInput;
+            return DiscordPlaysService.EnableTwitchInput;
         }
     }
     
@@ -62,7 +62,7 @@ namespace DiscordPlays
         {
             if(!SkipResend)
                 DiscordPlaysService.ws.Send(message);
-            return DiscordPlaysService.settings.EnableTwitchInput;
+            return DiscordPlaysService.EnableTwitchInput;
         }
     }
 
@@ -89,7 +89,7 @@ namespace DiscordPlays
 
         static bool Prefix(object msg)
         {
-            bool EnableTwitchInput = DiscordPlaysService.settings.EnableTwitchInput;
+            bool EnableTwitchInput = DiscordPlaysService.EnableTwitchInput;
             bool cont = FromDiscord || EnableTwitchInput;
             if (EnableTwitchInput)
             {
