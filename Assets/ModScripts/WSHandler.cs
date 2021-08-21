@@ -56,6 +56,7 @@ public class WSHandler : MonoBehaviour
         CurrentState = WSState.Changing;
         OnDestroy();
         var settings = DiscordPlaysService.settings;
+        settings.URLOverride = settings.URLOverride.Trim();
         bool OverrideURL = !String.IsNullOrEmpty(settings.URLOverride);
         ws = new WebSocket(String.Format("{0}://{1}", OverrideURL && settings.UseWSSOnOverride ? "wss" : "ws",
             OverrideURL ? settings.URLOverride : DefaultURLs[settings.Server]));

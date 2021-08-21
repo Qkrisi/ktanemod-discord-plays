@@ -28,7 +28,7 @@ public class DiscordPlaysService : MonoBehaviour
     {
         public string URLOverride = "";
         public bool UseWSSOnOverride = false;
-        public BlockTwitchOption BlockTwitchInput = BlockTwitchOption.Always;
+        public BlockTwitchOption BlockTwitchInput = BlockTwitchOption.WhenConnected;
         public DefaultServers Server = DefaultServers.Main;
     }
 
