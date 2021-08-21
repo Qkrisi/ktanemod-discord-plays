@@ -13,22 +13,26 @@ namespace DiscordPlays
         
         public static T ReadConfig<T>([NotNull] string fileName) where T : new()
         {
-            if (String.IsNullOrEmpty(fileName))
-                throw new ArgumentNullException("fileName");
-            if (!fileName.EndsWith(".json"))
-                fileName += ".json";
-            string settingsPath = Path.Combine(ModSettingsPath, fileName);
-            T settings;
-            try
+            lock (ModSettingsPath)
             {
-                settings = JsonConvert.DeserializeObject<T>(File.ReadAllText(settingsPath));
+                if (String.IsNullOrEmpty(fileName))
+                    throw new ArgumentNullException("fileName");
+                if (!fileName.EndsWith(".json"))
+                    fileName += ".json";
+                string settingsPath = Path.Combine(ModSettingsPath, fileName);
+                T settings;
+                try
+                {
+                    settings = JsonConvert.DeserializeObject<T>(File.ReadAllText(settingsPath));
+                }
+                catch (FileNotFoundException)
+                {
+                    settings = new T();
+                    File.WriteAllText(settingsPath,
+                        JsonConvert.SerializeObject(settings, Formatting.Indented, new StringEnumConverter()));
+                }
+                return settings;
             }
-            catch (FileNotFoundException)
-            {
-                settings = new T();
-                File.WriteAllText(settingsPath, JsonConvert.SerializeObject(settings, Formatting.Indented, new StringEnumConverter()));
-            }
-            return settings;
         }
 
         static ModConfigHelper()
