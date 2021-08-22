@@ -32,20 +32,15 @@ public class WSHandler : MonoBehaviour
     private Queue<Action> ActionQueue = new Queue<Action>();
     
     internal TokenInputPage _tokenInputPage;
-    
 
-    private Dictionary<DiscordPlaysService.DefaultServers, string> DefaultURLs =
-        new Dictionary<DiscordPlaysService.DefaultServers, string>()
-        {
-            {DiscordPlaysService.DefaultServers.Main, "server.qkrisi.tech:8080"},
-            {DiscordPlaysService.DefaultServers.Beta, "server.qkrisi.tech:8880"}
-        };
-    
     internal volatile WSState CurrentState = WSState.Disconnected;
 
     internal bool PageActive;
 
     internal string Token;
+
+    [SerializeField]
+    private string DefaultURL;
 
     public void Connect()
     {
@@ -58,8 +53,20 @@ public class WSHandler : MonoBehaviour
         var settings = DiscordPlaysService.settings;
         settings.URLOverride = settings.URLOverride.Trim();
         bool OverrideURL = !String.IsNullOrEmpty(settings.URLOverride);
-        ws = new WebSocket(String.Format("{0}://{1}", OverrideURL && settings.UseWSSOnOverride ? "wss" : "ws",
-            OverrideURL ? settings.URLOverride : DefaultURLs[settings.Server]));
+        try
+        {
+            ws = new WebSocket(String.Format("{0}://{1}", OverrideURL && settings.UseWSSOnOverride ? "wss" : "ws",
+                OverrideURL ? settings.URLOverride : String.Format("{0}:{1}", DefaultURL, (int) settings.Server)));
+        }
+        catch (Exception ex)
+        {
+            CurrentState = WSState.Disconnected;
+            if(PageActive)
+                _tokenInputPage.ErrorText.SetActive(true);
+            Debug.LogError("[Discord Plays] Failed to connect");
+            Debug.LogException(ex);
+            return;
+        }
         ws.OnMessage += (sender, e) =>
         {
             if (!enabled)
@@ -78,8 +85,12 @@ public class WSHandler : MonoBehaviour
         };
         ws.OnError += (sender, e) =>
         {
-            if(PageActive)
-                _tokenInputPage.ErrorText.SetActive(true);
+            lock(ActionQueue)
+                ActionQueue.Enqueue(() =>
+                {
+                    if(PageActive)
+                        _tokenInputPage.ErrorText.SetActive(true);
+                });
             Debug.LogErrorFormat("[Discord Plays] Websocket error: {0}", e.Message);
             Debug.LogException(e.Exception);
             CurrentState = WSState.Disconnected;

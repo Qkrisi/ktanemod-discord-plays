@@ -11,20 +11,20 @@ using DiscordPlays;
 [RequireComponent(typeof(KMGameInfo))]
 public class DiscordPlaysService : MonoBehaviour
 {
-    public enum DefaultServers
+    internal enum DefaultServers
     {
-        Main,
-        Beta
+        Main = 8080,
+        Beta = 8880
     }
 
-    public enum BlockTwitchOption
+    internal enum BlockTwitchOption
     {
         Always,
         WhenConnected,
         Never
     }
     
-    public class DiscordPlaysSettings
+    internal class DiscordPlaysSettings
     {
         public string URLOverride = "";
         public bool UseWSSOnOverride = false;
@@ -56,8 +56,6 @@ public class DiscordPlaysService : MonoBehaviour
     public static void RefreshSettings()
     {
         settings = ModConfigHelper.ReadConfig<DiscordPlaysSettings>(SettingsFile);
-        if (settings == null)
-            settings = new DiscordPlaysSettings();
     }
 
     public static void Connect()

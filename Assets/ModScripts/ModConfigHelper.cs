@@ -11,6 +11,7 @@ namespace DiscordPlays
     {
         private static readonly string ModSettingsPath;
         
+        [NotNull]
         public static T ReadConfig<T>([NotNull] string fileName) where T : new()
         {
             lock (ModSettingsPath)
@@ -31,6 +32,8 @@ namespace DiscordPlays
                     File.WriteAllText(settingsPath,
                         JsonConvert.SerializeObject(settings, Formatting.Indented, new StringEnumConverter()));
                 }
+                if (settings == null)
+                    settings = new T();
                 return settings;
             }
         }

@@ -68,9 +68,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3102681e8ec3740aaa3e353f66d29d15, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _tokenInputPage: {fileID: 0}
-  CurrentState: 0
-  PageActive: 0
+  DefaultURL: server.qkrisi.tech
 --- !u!114 &114442896078460758
 MonoBehaviour:
   m_ObjectHideFlags: 1
