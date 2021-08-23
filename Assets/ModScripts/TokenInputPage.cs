@@ -11,24 +11,27 @@ public class TokenInputPage : MonoBehaviour
     public TextMesh StatusText;
     public GameObject ErrorText;
 
-    void Start()
+    private void Start()
     {
         DiscordPlaysService.ws._tokenInputPage = this;
         TokenInput.text = DiscordPlaysService.ws.Token;
         OnEnable();
         ConnectButton.OnInteract += () =>
         {
-            if(DiscordPlaysService.ws.CurrentState == WSHandler.WSState.Connected)
+            if (DiscordPlaysService.ws.CurrentState == WSHandler.WSState.Connected)
+            {
                 DiscordPlaysService.ws.OnDestroy();
+            }
             else
             {
-                string token = TokenInput.text;
+                var token = TokenInput.text;
                 if (token.Length == 30)
                 {
                     DiscordPlaysService.ws.Token = token;
                     DiscordPlaysService.Connect();
                 }
             }
+
             return false;
         };
         RefreshButton.OnInteract += () =>
@@ -38,17 +41,17 @@ public class TokenInputPage : MonoBehaviour
         };
     }
 
-    void OnEnable()
+    private void OnEnable()
     {
         DiscordPlaysService.ws.PageActive = true;
     }
 
-    void OnDisable()
+    private void OnDisable()
     {
         DiscordPlaysService.ws.PageActive = false;
     }
-    
-    void OnDestroy()
+
+    private void OnDestroy()
     {
         OnDisable();
     }

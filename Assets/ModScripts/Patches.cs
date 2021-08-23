@@ -15,12 +15,12 @@ namespace DiscordPlays
     [HarmonyPatch]
     public static class ConnectPatch
     {
-        static MethodBase TargetMethod()
+        private static MethodBase TargetMethod()
         {
             return DiscordPlaysService.IRCConnectionType.GetMethod("Connect", AccessTools.all);
         }
-        
-        static bool Prefix()
+
+        private static bool Prefix()
         {
             return DiscordPlaysService.EnableTwitchInput;
         }
@@ -29,38 +29,39 @@ namespace DiscordPlays
     [HarmonyPatch]
     public static class ConnectButtonPatch
     {
-        static MethodBase TargetMethod()
+        private static MethodBase TargetMethod()
         {
             return ReflectionHelper.FindType("IRCConnectionManagerHoldable", "TwitchPlaysAssembly")
                 .GetMethod("ConnectDisconnect", AccessTools.all);
         }
 
-        static bool Prefix(out bool __result)
+        private static bool Prefix(out bool __result)
         {
             __result = false;
             return DiscordPlaysService.EnableTwitchInput;
         }
     }
-    
+
     [HarmonyPatch]
     public static class SendMessagePatch
     {
         internal static bool SkipResend;
         internal static MethodInfo SendMessageMethod;
-        
-        static MethodBase TargetMethod()
+
+        private static MethodBase TargetMethod()
         {
-            SendMessageMethod = DiscordPlaysService.IRCConnectionType.GetMethod("SendMessage", AccessTools.all, Type.DefaultBinder,
-                new Type[]
+            SendMessageMethod = DiscordPlaysService.IRCConnectionType.GetMethod("SendMessage", AccessTools.all,
+                Type.DefaultBinder,
+                new[]
                 {
                     typeof(string), typeof(string), typeof(bool)
                 }, null);
             return SendMessageMethod;
         }
 
-        static bool Prefix(string message)
+        private static bool Prefix(string message)
         {
-            if(!SkipResend)
+            if (!SkipResend)
                 DiscordPlaysService.ws.Send(message);
             return DiscordPlaysService.EnableTwitchInput;
         }
@@ -73,30 +74,32 @@ namespace DiscordPlays
 
         internal static FieldInfo NicknameField;
         internal static PropertyInfo TextProperty;
-        
-        static MethodBase TargetMethod()
+
+        private static MethodBase TargetMethod()
         {
-            Type IRCMessage = ReflectionHelper.FindType("IRCMessage", "TwitchPlaysAssembly");
+            var IRCMessage = ReflectionHelper.FindType("IRCMessage", "TwitchPlaysAssembly");
             NicknameField = IRCMessage.GetField("UserNickName", AccessTools.all);
             TextProperty = IRCMessage.GetProperty("Text", AccessTools.all);
             return DiscordPlaysService.IRCConnectionType.GetMethod("ReceiveMessage", AccessTools.all,
                 Type.DefaultBinder,
-                new Type[]
+                new[]
                 {
                     IRCMessage, typeof(bool)
                 }, null);
         }
 
-        static bool Prefix(object msg)
+        private static bool Prefix(object msg)
         {
-            bool EnableTwitchInput = DiscordPlaysService.EnableTwitchInput;
-            bool cont = FromDiscord || EnableTwitchInput;
+            var EnableTwitchInput = DiscordPlaysService.EnableTwitchInput;
+            var cont = FromDiscord || EnableTwitchInput;
             if (EnableTwitchInput)
             {
-                string Message = String.Format("[{0}] {1}", (string) NicknameField.GetValue(msg),
+                var Message = string.Format("[{0}] {1}", (string) NicknameField.GetValue(msg),
                     (string) TextProperty.GetValue(msg, null));
-                if(!FromDiscord)
+                if (!FromDiscord)
+                {
                     DiscordPlaysService.ws.Send(Message);
+                }
                 else
                 {
                     SendMessagePatch.SkipResend = true;
@@ -104,6 +107,7 @@ namespace DiscordPlays
                     SendMessagePatch.SkipResend = false;
                 }
             }
+
             FromDiscord = false;
             return cont;
         }
