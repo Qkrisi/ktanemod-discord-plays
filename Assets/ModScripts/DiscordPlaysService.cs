@@ -61,7 +61,7 @@ public class DiscordPlaysService : MonoBehaviour
     public static void Connect()
     {
         RefreshSettings();
-        ws.Connect();
+        ws.Connect(false);
     }
 
     void Awake()

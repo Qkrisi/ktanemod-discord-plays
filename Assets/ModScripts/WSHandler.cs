@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Newtonsoft.Json;
 using WebSocketSharp;
@@ -42,10 +44,27 @@ public class WSHandler : MonoBehaviour
     [SerializeField]
     private string DefaultURL;
 
-    public void Connect()
+    private bool Retry;
+    private Uri RetryURI;
+    private Coroutine RetryRoutine;
+    private readonly int[] RetryCodes = new[]
+    {
+        1002,
+        1006
+    };
+
+    public void Connect(bool retry)
     {
         if (ws!=null && ws.IsAlive)
             return;
+        retry &= RetryURI != null;
+        if (!retry && RetryRoutine != null)
+        {
+            Retry = false;
+            StopCoroutine(RetryRoutine);
+            RetryRoutine = null;
+            RetryURI = null;
+        }
         _tokenInputPage.ErrorText.SetActive(false);
         Debug.Log("[Discord Plays] Connecting");
         CurrentState = WSState.Changing;
@@ -55,8 +74,8 @@ public class WSHandler : MonoBehaviour
         bool OverrideURL = !String.IsNullOrEmpty(settings.URLOverride);
         try
         {
-            ws = new WebSocket(String.Format("{0}://{1}", OverrideURL && settings.UseWSSOnOverride ? "wss" : "ws",
-                OverrideURL ? settings.URLOverride : String.Format("{0}:{1}", DefaultURL, (int) settings.Server)));
+            ws = new WebSocket(!retry ? String.Format("{0}://{1}", OverrideURL && settings.UseWSSOnOverride ? "wss" : "ws",
+                OverrideURL ? settings.URLOverride : String.Format("{0}:{1}", DefaultURL, (int) settings.Server)) : String.Format("{0}://{1}:{2}", RetryURI.Scheme, RetryURI.DnsSafeHost, RetryURI.Port));
         }
         catch (Exception ex)
         {
@@ -103,10 +122,32 @@ public class WSHandler : MonoBehaviour
         };
         ws.OnClose += (sender, e) =>
         {
-            Debug.Log("[Discord Plays] Connection closed");
-            CurrentState = WSState.Disconnected;
+            lock(ActionQueue)
+                ActionQueue.Enqueue(() => {
+                    Retry = !e.WasClean && RetryCodes.Contains(e.Code);
+                    if(RetryRoutine == null)
+                        RetryRoutine = StartCoroutine(HandleRetry());
+                    string msg = "[Discord Plays] Connection closed ";
+                    if (e.WasClean)
+                        msg += "(clean) ";
+                    Debug.LogFormat("{0}//{1} {2}", msg, e.Code, e.Reason);
+                    CurrentState = WSState.Disconnected;
+                });
         };
+        Retry = false;
         ws.Connect();
+    }
+
+    private IEnumerator HandleRetry()
+    {
+        Debug.LogFormat("[Discord Plays] Retry: {0}", Retry);
+        while (Retry)
+        {
+            yield return new WaitForSecondsRealtime(5f);
+            if(Retry)
+                Connect(true);
+        }
+        RetryRoutine = null;
     }
 
     public void Send(string message)
@@ -145,6 +186,7 @@ public class WSHandler : MonoBehaviour
         if (ws != null)
         {
             CurrentState = WSState.Changing;
+            RetryURI = ws.Url;
             if (ws.IsAlive)
                 ws.Close();
             ((IDisposable)ws).Dispose();
