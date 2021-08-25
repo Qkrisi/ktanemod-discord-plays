@@ -6,6 +6,7 @@ using DiscordPlays;
 using Newtonsoft.Json;
 using UnityEngine;
 using WebSocketSharp;
+using WebSocketSharp.Net;
 
 [DisallowMultipleComponent]
 [RequireComponent(typeof(DiscordPlaysService))]
@@ -21,7 +22,7 @@ public class WSHandler : MonoBehaviour
     [SerializeField] private string DefaultURL;
     private readonly Queue<Action> ActionQueue = new Queue<Action>();
 
-    private readonly int[] RetryCodes =
+    private readonly ushort[] RetryCodes =
     {
         1002,
         1006
@@ -120,6 +121,8 @@ public class WSHandler : MonoBehaviour
             return;
         }
 
+        ws.SetCookie(new Cookie("Version", Application.version));
+
         ws.OnMessage += (sender, e) =>
         {
             if (!enabled)
@@ -188,7 +191,6 @@ public class WSHandler : MonoBehaviour
             if (Retry)
                 Connect(true);
         }
-
         RetryRoutine = null;
     }
 

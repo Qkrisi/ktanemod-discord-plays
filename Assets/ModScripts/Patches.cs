@@ -72,8 +72,8 @@ namespace DiscordPlays
     {
         internal static bool FromDiscord;
 
-        internal static FieldInfo NicknameField;
-        internal static PropertyInfo TextProperty;
+        private static FieldInfo NicknameField;
+        private static PropertyInfo TextProperty;
 
         private static MethodBase TargetMethod()
         {
@@ -91,7 +91,7 @@ namespace DiscordPlays
         private static bool Prefix(object msg)
         {
             var EnableTwitchInput = DiscordPlaysService.EnableTwitchInput;
-            var cont = FromDiscord || EnableTwitchInput;
+            bool cont = FromDiscord || EnableTwitchInput;
             if (EnableTwitchInput)
             {
                 var Message = string.Format("[{0}] {1}", (string) NicknameField.GetValue(msg),
@@ -107,7 +107,6 @@ namespace DiscordPlays
                     SendMessagePatch.SkipResend = false;
                 }
             }
-
             FromDiscord = false;
             return cont;
         }

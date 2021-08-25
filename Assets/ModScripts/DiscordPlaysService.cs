@@ -153,9 +153,9 @@ public class DiscordPlaysService : MonoBehaviour
 
     internal class DiscordPlaysSettings
     {
+		public string URLOverride = "";
+		public bool UseWSSOnOverride = false;
         public BlockTwitchOption BlockTwitchInput = BlockTwitchOption.WhenConnected;
         public DefaultServers Server = DefaultServers.Main;
-        public string URLOverride = "";
-        public bool UseWSSOnOverride = false;
     }
 }
