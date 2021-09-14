@@ -55,9 +55,13 @@ public class WSHandler : MonoBehaviour
 
         if (PageActive)
         {
-            _tokenInputPage.StatusText.text = CurrentState.ToString();
-            _tokenInputPage.ConnectButton.gameObject.SetActive(CurrentState != WSState.Changing);
-            _tokenInputPage.ButtonText.text = CurrentState == WSState.Connected ? "Disconnect" : "Connect";
+			try
+			{
+				_tokenInputPage.StatusText.text = CurrentState.ToString();
+				_tokenInputPage.ConnectButton.gameObject.SetActive(CurrentState != WSState.Changing);
+				_tokenInputPage.ButtonText.text = CurrentState == WSState.Connected ? "Disconnect" : "Connect";
+			}
+			catch(NullReferenceException) {}
         }
     }
 
@@ -96,12 +100,21 @@ public class WSHandler : MonoBehaviour
             RetryRoutine = null;
             RetryURI = null;
         }
-
-        _tokenInputPage.ErrorText.SetActive(false);
+		
+		if(PageActive)
+		{
+			try
+			{
+				_tokenInputPage.ErrorText.SetActive(false);
+			}
+			catch(NullReferenceException) {}
+		}
         Debug.LogFormat("[Discord Plays] {0}", retry ? "Retrying connection" : "Connecting");
         CurrentState = WSState.Changing;
         OnDestroy();
         var settings = DiscordPlaysService.settings;
+        if(settings.URLOverride == null)
+			settings.URLOverride = "";
         settings.URLOverride = settings.URLOverride.Trim();
         var OverrideURL = !string.IsNullOrEmpty(settings.URLOverride);
         try
@@ -115,7 +128,13 @@ public class WSHandler : MonoBehaviour
         {
             CurrentState = WSState.Disconnected;
             if (PageActive)
-                _tokenInputPage.ErrorText.SetActive(true);
+            {
+				try
+				{
+					_tokenInputPage.ErrorText.SetActive(true);
+				}
+				catch(NullReferenceException) {}
+			}
             Debug.LogError("[Discord Plays] Failed to connect");
             Debug.LogException(ex);
             return;
@@ -134,7 +153,9 @@ public class WSHandler : MonoBehaviour
                     ActionQueue.Enqueue(() =>
                     {
                         ReceiveMessagePatch.FromDiscord = true;
-                        DiscordPlaysService.ReceiveMessageMethod.Invoke(null, new object[]
+                        if(DiscordPlaysService.ReceiveMessageMethod == null)
+							Debug.LogError("Receive message method could not be found in Twitch Plays");
+                        else DiscordPlaysService.ReceiveMessageMethod.Invoke(null, new object[]
                         {
                             message.User, message.Color, message.Message, false, false
                         });
@@ -148,7 +169,13 @@ public class WSHandler : MonoBehaviour
                 ActionQueue.Enqueue(() =>
                 {
                     if (PageActive)
-                        _tokenInputPage.ErrorText.SetActive(true);
+                    {
+						try
+						{
+							_tokenInputPage.ErrorText.SetActive(true);
+						}
+						catch(NullReferenceException) {}
+					}
                 });
             }
 
@@ -185,11 +212,11 @@ public class WSHandler : MonoBehaviour
 
     private IEnumerator HandleRetry()
     {
+		yield return new WaitForSecondsRealtime(.5f);
         while (Retry)
         {
+			Connect(true);
             yield return new WaitForSecondsRealtime(5f);
-            if (Retry)
-                Connect(true);
         }
         RetryRoutine = null;
     }

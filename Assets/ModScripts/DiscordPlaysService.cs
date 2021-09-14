@@ -94,10 +94,10 @@ public class DiscordPlaysService : MonoBehaviour
                             typeof(string), typeof(string), typeof(string), typeof(bool), typeof(bool)
                         }, null);
                     Patcher.Patch();
+                    StartCoroutine(FindModSelector());
                 }
             }
         };
-        StartCoroutine(FindModSelector());
     }
 
 

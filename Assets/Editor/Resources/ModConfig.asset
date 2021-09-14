@@ -14,8 +14,21 @@ MonoBehaviour:
   id: DiscordPlays
   title: 'Discord Plays: KTaNE'
   author: Qkrisi
-  description: 'Discord Plays: KTaNE'
-  version: 0.1
+  description: 'Mod for creating Discord Plays sessions handled by the KTaNE Bot.
+
+
+    To connect, run `.dp` in a channel that Discord Plays is enabled in, and input
+    the token the bot gives you into the `Discord Plays: KTaNE` Mod Selector app.
+
+
+    **Required mods:**
+
+    Mod Selector
+
+    Tweaks (Harmony)
+
+    Twitch Plays KTaNE (Doesn''t need to be configured)'
+  version: 1.0.2
   outputFolder: /home/qkrisi/.steam/steam/steamapps/common/Keep Talking and Nobody
     Explodes/mods/
-  previewImage: {fileID: 0}
+  previewImage: {fileID: 2800000, guid: 8a99b5b856d224832bbf87b77897d245, type: 3}
