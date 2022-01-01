@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using DiscordPlays;
 using Newtonsoft.Json;
 using UnityEngine;
@@ -146,7 +147,23 @@ public class WSHandler : MonoBehaviour
         {
             if (!enabled)
                 return;
-            var message = JsonConvert.DeserializeObject<DiscordMessage>(e.Data);
+            var msg = e.Data;
+            var match = Regex.Match(msg, @"streamer (.+)");
+            if (match.Success && DiscordPlaysService.AddUserMethod != null)
+            {
+                lock (ActionQueue)
+                {
+                    ActionQueue.Enqueue(() =>
+                    {
+                        DiscordPlaysService.AddUserMethod.Invoke(null,
+                            new object[] { match.Groups[1].Value, 0x2000 | 0x4000 | 0x8000 | 0x10000 });
+                        if (DiscordPlaysService.WriteAccessListMethod != null)
+                            DiscordPlaysService.WriteAccessListMethod.Invoke(null, new object[0]);
+                    });
+                }
+                return;
+            }
+            var message = JsonConvert.DeserializeObject<DiscordMessage>(msg);
             if (message != null)
                 lock (ActionQueue)
                 {

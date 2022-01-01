@@ -12,12 +12,15 @@ using UnityEngine;
 public class DiscordPlaysService : MonoBehaviour
 {
     internal const string SettingsFile = "DiscordPlays.json";
+    internal const string TwitchPlaysAssembly = "TwitchPlaysAssembly";
 
     internal static DiscordPlaysSettings settings = new DiscordPlaysSettings();
 
     internal static Type IRCConnectionType;
 
     internal static MethodInfo ReceiveMessageMethod;
+    internal static MethodInfo AddUserMethod;
+    internal static MethodInfo WriteAccessListMethod;
 
     internal static WSHandler ws;
 
@@ -83,7 +86,7 @@ public class DiscordPlaysService : MonoBehaviour
         {
             if (IRCConnectionType == null && state == KMGameInfo.State.Setup)
             {
-                IRCConnectionType = ReflectionHelper.FindType("IRCConnection", "TwitchPlaysAssembly");
+                IRCConnectionType = ReflectionHelper.FindType("IRCConnection", TwitchPlaysAssembly);
                 if (IRCConnectionType != null)
                 {
                     RefreshSettings();
@@ -93,6 +96,12 @@ public class DiscordPlaysService : MonoBehaviour
                         {
                             typeof(string), typeof(string), typeof(string), typeof(bool), typeof(bool)
                         }, null);
+                    var UserAccessType = ReflectionHelper.FindType("UserAccess", TwitchPlaysAssembly);
+                    if (UserAccessType != null)
+                    {
+                        AddUserMethod = UserAccessType.GetMethod("AddUser", ReflectionHelper.AllFlags);
+                        WriteAccessListMethod = UserAccessType.GetMethod("WriteAccessList", ReflectionHelper.AllFlags);
+                    }
                     Patcher.Patch();
                     StartCoroutine(FindModSelector());
                 }

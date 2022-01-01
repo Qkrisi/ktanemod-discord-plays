@@ -31,7 +31,7 @@ namespace DiscordPlays
     {
         private static MethodBase TargetMethod()
         {
-            return ReflectionHelper.FindType("IRCConnectionManagerHoldable", "TwitchPlaysAssembly")
+            return ReflectionHelper.FindType("IRCConnectionManagerHoldable", DiscordPlaysService.TwitchPlaysAssembly)
                 .GetMethod("ConnectDisconnect", AccessTools.all);
         }
 
@@ -77,7 +77,7 @@ namespace DiscordPlays
 
         private static MethodBase TargetMethod()
         {
-            var IRCMessage = ReflectionHelper.FindType("IRCMessage", "TwitchPlaysAssembly");
+            var IRCMessage = ReflectionHelper.FindType("IRCMessage", DiscordPlaysService.TwitchPlaysAssembly);
             NicknameField = IRCMessage.GetField("UserNickName", AccessTools.all);
             TextProperty = IRCMessage.GetProperty("Text", AccessTools.all);
             return DiscordPlaysService.IRCConnectionType.GetMethod("ReceiveMessage", AccessTools.all,
