@@ -28,7 +28,7 @@ MonoBehaviour:
     Tweaks (Harmony)
 
     Twitch Plays KTaNE (Doesn''t need to be configured)'
-  version: 1.0.2
+  version: 1.1.0
   outputFolder: /home/qkrisi/.steam/steam/steamapps/common/Keep Talking and Nobody
     Explodes/mods/
   previewImage: {fileID: 2800000, guid: 8a99b5b856d224832bbf87b77897d245, type: 3}

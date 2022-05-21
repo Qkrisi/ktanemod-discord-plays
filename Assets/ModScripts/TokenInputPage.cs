@@ -9,7 +9,7 @@ public class TokenInputPage : MonoBehaviour
     public InputField TokenInput;
     public TextMesh ButtonText;
     public TextMesh StatusText;
-    public GameObject ErrorText;
+    public TextMesh ErrorText;
 
     private void Start()
     {
@@ -25,7 +25,7 @@ public class TokenInputPage : MonoBehaviour
             else
             {
                 var token = TokenInput.text;
-                if (token.Length == 30)
+                if (!string.IsNullOrEmpty(token))
                 {
                     DiscordPlaysService.ws.Token = token;
                     DiscordPlaysService.Connect();

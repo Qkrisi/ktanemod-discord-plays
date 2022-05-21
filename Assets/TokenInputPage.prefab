@@ -406,7 +406,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1150924029020544}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 49, y: 206, z: -0.0002}
+  m_LocalPosition: {x: 937, y: 148, z: -0.0002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4127192139057778}
@@ -516,7 +516,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1898069561212798}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1591, y: 159, z: -0.0002}
+  m_LocalPosition: {x: 1554, y: 548, z: -0.0002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4127192139057778}
@@ -555,7 +555,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1753607877973808}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1393, y: 159, z: -0.0002}
+  m_LocalPosition: {x: 1372, y: 548, z: -0.0002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4127192139057778}
@@ -996,12 +996,12 @@ TextMesh:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1150924029020544}
-  m_Text: Connection error
+  m_Text: 
   m_OffsetZ: 0
   m_CharacterSize: 10
   m_LineSpacing: 1
-  m_Anchor: 0
-  m_Alignment: 0
+  m_Anchor: 4
+  m_Alignment: 1
   m_TabSize: 4
   m_FontSize: 60
   m_FontStyle: 0
@@ -1059,7 +1059,7 @@ TextMesh:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1753607877973808}
-  m_Text: 'Status:'
+  m_Text: 'Status: '
   m_OffsetZ: 0
   m_CharacterSize: 10
   m_LineSpacing: 1
@@ -1521,7 +1521,7 @@ MonoBehaviour:
   m_LineType: 0
   m_HideMobileInput: 0
   m_CharacterValidation: 0
-  m_CharacterLimit: 30
+  m_CharacterLimit: 0
   m_OnEndEdit:
     m_PersistentCalls:
       m_Calls: []
@@ -1568,7 +1568,7 @@ MonoBehaviour:
   TokenInput: {fileID: 114941612535394608}
   ButtonText: {fileID: 102558179231560058}
   StatusText: {fileID: 102248558810350910}
-  ErrorText: {fileID: 1150924029020544}
+  ErrorText: {fileID: 102371988282178348}
 --- !u!114 &114984292078983692
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -1647,14 +1647,14 @@ RectTransform:
   m_GameObject: {fileID: 1696469521895402}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.1520672, y: 3.371303, z: 1}
+  m_LocalScale: {x: 1.0051352, y: 3.371303, z: 1}
   m_Children: []
   m_Father: {fileID: 224597076257578040}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 137, y: -215}
+  m_AnchoredPosition: {x: -3, y: -215}
   m_SizeDelta: {x: -20, y: -13}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224597076257578040

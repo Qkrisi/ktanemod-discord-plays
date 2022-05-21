@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Text.RegularExpressions;
 using DiscordPlays;
 using Newtonsoft.Json;
@@ -19,6 +20,18 @@ public class WSHandler : MonoBehaviour
         Changing,
         Connected
     }
+    
+    private struct GameInfo
+    {
+        public string Version
+        {
+            get
+            {
+                return Application.version;
+            }
+        }
+        public bool Retry { get; set; }
+    }
 
     [SerializeField] private string DefaultURL;
     private readonly Queue<Action> ActionQueue = new Queue<Action>();
@@ -27,6 +40,12 @@ public class WSHandler : MonoBehaviour
     {
         1002,
         1006
+    };
+    
+    private readonly ushort[] ErrorCodes = 
+    {
+        1003,
+        1014
     };
 
     internal TokenInputPage _tokenInputPage;
@@ -88,6 +107,30 @@ public class WSHandler : MonoBehaviour
             ws = null;
         }
     }
+    
+    private string GetCookie(bool retry)
+    {
+        return Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new GameInfo {Retry = retry})));
+    }
+    
+    private void SetErrorText(string text)
+    {
+        lock (ActionQueue)
+        {
+            ActionQueue.Enqueue(() =>
+            {
+                if (PageActive)
+                {
+                    try
+                    {
+                        _tokenInputPage.ErrorText.text = text;
+                        _tokenInputPage.ErrorText.gameObject.SetActive(true);
+                    }
+                    catch(NullReferenceException) {}
+                }
+            });
+        }
+    }
 
     public void Connect(bool retry)
     {
@@ -106,7 +149,7 @@ public class WSHandler : MonoBehaviour
 		{
 			try
 			{
-				_tokenInputPage.ErrorText.SetActive(false);
+				_tokenInputPage.ErrorText.gameObject.SetActive(false);
 			}
 			catch(NullReferenceException) {}
 		}
@@ -132,7 +175,7 @@ public class WSHandler : MonoBehaviour
             {
 				try
 				{
-					_tokenInputPage.ErrorText.SetActive(true);
+					_tokenInputPage.ErrorText.gameObject.SetActive(true);
 				}
 				catch(NullReferenceException) {}
 			}
@@ -141,7 +184,7 @@ public class WSHandler : MonoBehaviour
             return;
         }
 
-        ws.SetCookie(new Cookie("Version", Application.version));
+        ws.SetCookie(new Cookie("GameInfo", GetCookie(retry)));
 
         ws.OnMessage += (sender, e) =>
         {
@@ -181,21 +224,7 @@ public class WSHandler : MonoBehaviour
         };
         ws.OnError += (sender, e) =>
         {
-            lock (ActionQueue)
-            {
-                ActionQueue.Enqueue(() =>
-                {
-                    if (PageActive)
-                    {
-						try
-						{
-							_tokenInputPage.ErrorText.SetActive(true);
-						}
-						catch(NullReferenceException) {}
-					}
-                });
-            }
-
+            SetErrorText("ERROR: " + e.Message);
             Debug.LogErrorFormat("[Discord Plays] Websocket error: {0}", e.Message);
             Debug.LogException(e.Exception);
             CurrentState = WSState.Disconnected;
@@ -204,7 +233,7 @@ public class WSHandler : MonoBehaviour
         {
             Debug.Log("[Discord Plays] Connection successful");
             CurrentState = WSState.Connected;
-            ws.Send(Token);
+            Send(Token);
         };
         ws.OnClose += (sender, e) =>
         {
@@ -218,6 +247,9 @@ public class WSHandler : MonoBehaviour
                     var msg = "[Discord Plays] Connection closed ";
                     if (e.WasClean)
                         msg += "(clean) ";
+                    else SetErrorText("Connection error");
+                    if(e.WasClean && ErrorCodes.Contains(e.Code))
+                        SetErrorText(string.Format("ERROR: {0} ({1})", e.Reason, e.Code));
                     Debug.LogFormat("{0}//{1} {2}", msg, e.Code, e.Reason);
                     CurrentState = WSState.Disconnected;
                 });
